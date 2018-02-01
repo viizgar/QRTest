@@ -1,0 +1,45 @@
+<MP v="1" u="MPP" U="CA620D79D334428CBA6203181EAA1378" l="de-DE">
+    <P t="Prof. Dr. med." g="Ivan" z="Freiherr" v="von und zu" f="Ivanov"
+       s="M" egk="F994842101" b="1958-02-13"/>
+    <A n="Sonnen-Apotheke" idf="3379589" s="Musterweg 1" z="01662" c="Meißen"
+       p="03521-1234567" e="sonnen-apotheke@meissen.de" t="2017-07-15T10:11:12"/>
+    <O w="102" h="175"/>
+    <AI t="Penicillin">
+        <s s="Penicillin" sc="J01C" dc="I12829" c="H" r="Ausschlag"/>
+    </AI>
+    <S>
+        <M id="1" p="5701380" r="Schilddrüse" c="2017-07-15T10:05:17">
+            <D m="1" du="1"/>
+        </M>
+        <M id="2" p="1016440" r="Bluthochdruck" c="2017-07-15T10:05:17">
+            <D m="1" du="1"/>
+        </M>
+        <M id="3" p="602905" r="Magenbeschwerden" c="2017-07-15T10:05:17">
+            <D m="1" du="1"/>
+        </M>
+        <M id="4" p="3436979"
+           i="bei Bedarf (Pollenflug) morgens und abends je 1 Sprühstoß pro Nasenloch" 
+           r="Heuschnupfen" c="2017-07-15T10:05:17">
+            <D m="1" v="1" du="o"/>
+        </M>
+    </S>
+    <S c="418">
+        <M id="5" p="2246627" i="bei Bedarf 1 Tablette, bevorzugt abends"
+           r="Heuschnupfen" c="2017-07-15T10:05:17">
+            <D t="siehe Hinweistext" du="1"/>
+        </M>
+        <M id="6" p="3436979"
+           i="bei Bedarf (Pollenflug) morgens und abends je 1 Sprühstoß pro Nasenloch"
+           r="Heuschnupfen" c="2017-07-15T10:05:17">
+            <D m="1" v="1" du="o"/>
+        </M>
+        <M id="7" p="4512286" 
+           i="Behandl. fortsetzen; mind. 2x/Woche auf erkrankten Nagel auftragen"
+           r="Nagelpilz" c="2017-07-15T10:05:17">
+            <D t="siehe Hinweistext"/>
+        </M>
+        <R id="8"
+           t="Pflegecreme (Basiscreme DAC, Nachtkerzenöl 10%)  -- täglich auf die betroffenen Stellen --"
+           c="2017-07-15T10:05:17"/>
+    </S>
+</MP>
