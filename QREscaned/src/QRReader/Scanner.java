@@ -196,7 +196,7 @@ public class Scanner {
         String text = null;
         if (image != null) {
             int angle = 90;
-            Rectangle rec = null;
+            
             
 
              while (angle < 360) {
@@ -213,26 +213,13 @@ public class Scanner {
             frame.pack();
             frame.setVisible(true);**/
 
-            for(int c = -5; c < 5; c ++) {
+            for(int c = 0; c < 10; c ++) {
             
-            rec = getDataMatrixPosition(transformedImage, c);
+            	text = readDataMatrixBundle(transformedImage, c);
             
-            if (rec != null) {
-                BufferedImage dataMatrix = transformedImage.getSubimage((int) rec.getX() , (int) rec.getY() , (int) rec.getWidth(),
-                        (int) rec.getHeight());
-
-           
-                for(int rot = -5; rot < 5; rot ++) {
-                	text = imageReader(dataMatrix, rot);
-                    if(text != null) {
-                        System.out.println(text);
-                    	return text;
-                    }
-                }
-            	
-            		} 
+            
             }
-            image = rotateImageByDegrees(image, angle);
+            image = rotateImageByDegrees(image, 90);
 
             angle += 90;
             }
@@ -268,49 +255,71 @@ public class Scanner {
         return text;
     }
     
-    public static String imageReader(BufferedImage image, final int i) {
-    	String text = imageReader(image, i, false);
-    	if(text == null) {
-    		text = imageReader(image, i, true);
-    	}
-    	
+    
+    private static String readDataMatrixBundle(BufferedImage transformedImage, int c) {
+    	String text = null;
+    	Rectangle rec = getDataMatrixPosition(transformedImage, c);
+        
+        if (rec != null) {
+            BufferedImage dataMatrix = transformedImage.getSubimage((int) rec.getX() , (int) rec.getY() , (int) rec.getWidth(),
+                    (int) rec.getHeight());
+
+            for(int rot = 0; rot < 5; rot ++) {
+            	//pos
+            	text = imageReader(dataMatrix, rot);
+                if(text != null) {
+                    System.out.println(text);
+                	return text;
+                }
+                
+                //neg
+                text = imageReader(dataMatrix, -rot);
+                if(text != null) {
+                    System.out.println(text);
+                	return text;
+                }
+            }
+            
+        	
+        		} 
+        
     	return text;
     }
+    
 
-    public static String imageReader(BufferedImage image, final int i, boolean filter) {
+    public static String imageReader(BufferedImage image, final int i) {
 
     	String text = null;
         BinaryBitmap bitmap = null;
         Result result = null;
 
         image = rotateImageByDegrees(image, i);
-        
-        if(filter)
-			try {
-				image = filterDataMatrix(image);
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+        try {
+			image = filterDataMatrix(image);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			System.out.println("Error filtering");
+		}
+       
         
         LuminanceSource tmpSource = new BufferedImageLuminanceSource(image);
         bitmap = new BinaryBitmap(new HybridBinarizer(tmpSource));
         DataMatrixReader reader = new DataMatrixReader();
         
-        /**JFrame frame = new JFrame();
+        JFrame frame = new JFrame();
         frame.getContentPane()
              .setLayout(new FlowLayout());
         frame.getContentPane()
              .add(new JLabel(new ImageIcon(image)));
         frame.pack();
-        frame.setVisible(true);**/
+        frame.setVisible(true);
         
         
         final Hashtable<DecodeHintType, Object> decodeHints = new Hashtable<>();
         decodeHints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
         decodeHints.put(DecodeHintType.POSSIBLE_FORMATS, BarcodeFormat.DATA_MATRIX);
         decodeHints.put(DecodeHintType.CHARACTER_SET, CharacterSetECI.ISO8859_1);
-        //decodeHints.put(DecodeHintType.PURE_BARCODE, Boolean.FALSE);
+        decodeHints.put(DecodeHintType.PURE_BARCODE, Boolean.FALSE);
         try {
         	result = reader.decode(bitmap, decodeHints);
             text = result.getText();
@@ -329,15 +338,17 @@ public class Scanner {
     
     private static ResultPoint correctPoints(ResultPoint point, Vertices vertice, int correction){
     	
-    	if(vertice.equals(Vertices.TOPLEFT))
-    	      return new ResultPoint(point.getX() - correction, point.getY() +correction);
-    	  else if(vertice.equals(Vertices.BOTTOMLEFT)){
-    	      return new ResultPoint(point.getX() - correction, point.getY() -correction);
-    	  }else if(vertice.equals(Vertices.TOPRIGHT)){
-    	      return new ResultPoint(point.getX() +correction, point.getY() +correction);
-    	  }else{
-    	      return new ResultPoint(point.getX() +correction, point.getY() -correction);
-    	  }
+        if(vertice.equals(Vertices.TOPLEFT))
+            return new ResultPoint(point.getX() - correction, point.getY() +correction);
+        else if(vertice.equals(Vertices.BOTTOMLEFT)){
+            return new ResultPoint(point.getX() - correction, point.getY() -correction);
+        }else if(vertice.equals(Vertices.TOPRIGHT)){
+            return new ResultPoint(point.getX() +correction, point.getY() +correction);
+        }else{
+            return new ResultPoint(point.getX() +correction, point.getY() -correction);
+        }
+
+
 
     	}
     
@@ -367,7 +378,7 @@ public class Scanner {
                     }
 
                     if (image == null) {
-                        int resolution = 400;
+                        int resolution = 200;
                         // while (text == null && resolution < 1000) {
                         image = pdfRenderer.renderImageWithDPI(i, resolution, ImageType.RGB);
                         text = getTextByImage(image, i);
