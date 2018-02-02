@@ -31,6 +31,7 @@ import org.apache.pdfbox.rendering.PDFRenderer;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
+import com.google.zxing.LuminanceSource;
 import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
@@ -227,7 +228,7 @@ public class Scanner {
         return convert2DtoImage(matrix);
     }
 
-    private static Rectangle getDataMatrixPosition(final BufferedImage image) {
+    private static Rectangle getDataMatrixPosition(final BufferedImage image, int c) {
 
         try {
 
@@ -241,11 +242,17 @@ public class Scanner {
 
             final ResultPoint[] rp = wrd.detect();
 
-            final int x = (int) rp[0].getX() - 15;
-            final int y = (int) (rp[0].getY() - 15);
+            ResultPoint pointA = correctPoints(rp[1], Vertices.TOPLEFT, c);
+            ResultPoint pointB = correctPoints(rp[0], Vertices.BOTTOMLEFT, c);
+            ResultPoint pointC = correctPoints(rp[3], Vertices.TOPRIGHT, c);
+            ResultPoint pointD = correctPoints(rp[2], Vertices.BOTTOMRIGHT, c);
+            
+            
+            final int x = (int) pointB.getX();
+            final int y = (int) pointB.getY();
 
-            final int w = (int) (rp[2].getX() - rp[0].getX()) + 30;
-            final int h = (int) (rp[3].getY() - rp[2].getY()) + 30;
+            final int w = (int) (pointD.getX() - pointB.getX()) ;
+            final int h = (int) (pointA.getY() - pointB.getY()) ;
 
             return new Rectangle(x, y, w, h);
 
@@ -256,52 +263,65 @@ public class Scanner {
 
     }
 
-    private static String getTextByImage(BufferedImage image, final int i) {
+    private static String getTextByImage(BufferedImage image, int i ) {
         String text = null;
         if (image != null) {
             int angle = 90;
             Rectangle rec = null;
-            image = rotateImageByDegrees(image, angle);
-            final BufferedImage transformedImage = image.getSubimage(image.getWidth() * 8 / 11, 0, image.getWidth() * 3 / 11,
-                    image.getHeight() / 4);
+            
 
-            // while (angle < 360) {
+             while (angle < 360) {
 
-            JFrame frame;
+            	 final BufferedImage transformedImage = image.getSubimage(image.getWidth() * 8 / 11, 0, image.getWidth() * 3 / 11,
+                         image.getHeight() / 4);
+            	 
+            /**JFrame frame;
             frame = new JFrame();
             frame.getContentPane()
                  .setLayout(new FlowLayout());
             frame.getContentPane()
-                 .add(new JLabel(new ImageIcon(image)));
+                 .add(new JLabel(new ImageIcon(transformedImage)));
             frame.pack();
-            frame.setVisible(true);
+            frame.setVisible(true);**/
 
-            rec = getDataMatrixPosition(transformedImage);
-            angle += 90;
-
-            // }
+            for(int c = 0; c < 10; c ++) {
+            
+            rec = getDataMatrixPosition(transformedImage, c);
+            
             if (rec != null) {
-                BufferedImage dataMatrix = transformedImage.getSubimage((int) rec.getX(), (int) rec.getY(), (int) rec.getWidth(),
+                BufferedImage dataMatrix = transformedImage.getSubimage((int) rec.getX() , (int) rec.getY() , (int) rec.getWidth(),
                         (int) rec.getHeight());
 
-                frame = new JFrame();
-                frame.getContentPane()
-                     .setLayout(new FlowLayout());
-                frame.getContentPane()
-                     .add(new JLabel(new ImageIcon(dataMatrix)));
-                frame.pack();
-                frame.setVisible(true);
+           
+                for(int rot = -10; rot < 10; rot ++) {
+                	text = imageReader(dataMatrix, rot);
+                    if(text != null) {
+                        System.out.println(text);
+                    	return text;
+                    }
+                }
+            	
+            		} 
+            }
+            image = rotateImageByDegrees(image, angle);
 
-                text = imageReader(dataMatrix, 0);
-                if (text == null) {
+            angle += 90;
+            }
+             
+             
+
+        }
+                
+                /**if (text == null) {
                     dataMatrix = filterDataMatrix(resizeImage(dataMatrix, dataMatrix.getWidth() * 2, dataMatrix.getHeight() * 2));
                     text = imageReader(dataMatrix, 0);
 
-                }
+                }**/
 
                 if (text == null) {
+                    System.out.println("Page fail: " + (i + 1));
 
-                    System.err.println("Unreadable image");
+                    //System.err.println("Unreadable image");
 
                     // final JFrame frame = new JFrame();
                     // frame.getContentPane()
@@ -312,56 +332,65 @@ public class Scanner {
                     // frame.setVisible(true);
                 }
 
-            }
-        }
+            
         else {
             System.out.println("The image cannot be readed");
         }
         return text;
     }
 
-    public static String imageReader(final BufferedImage image, final int i) {
+    public static String imageReader(BufferedImage image, final int i) {
 
-        String text = null;
+    	String text = null;
         BinaryBitmap bitmap = null;
         Result result = null;
 
-        final int padding = 10;
-        final BufferedImage newImage = new BufferedImage(image.getWidth() + 2 * padding, image.getHeight() + 2 * padding,
-                image.getType());
-        final Graphics g = newImage.getGraphics();
-        g.setColor(Color.white);
-        g.fillRect(0, 0, image.getWidth() + 2 * padding, image.getHeight() + 2 * padding);
-        g.drawImage(image, padding, padding, null);
-        g.dispose();
-
-        final int[] pixels = newImage.getRGB(0, 0, newImage.getWidth(), newImage.getHeight(), null, 0, newImage.getWidth());
-        final RGBLuminanceSource source = new RGBLuminanceSource(newImage.getWidth(), newImage.getHeight(), pixels);
-
-        bitmap = new BinaryBitmap(new HybridBinarizer(source));
-
-        final DataMatrixReader reader = new DataMatrixReader();
+        image = rotateImageByDegrees(image, i);
+        
+        LuminanceSource tmpSource = new BufferedImageLuminanceSource(image);
+        bitmap = new BinaryBitmap(new HybridBinarizer(tmpSource));
+        DataMatrixReader reader = new DataMatrixReader();
+        
+        /**JFrame frame = new JFrame();
+        frame.getContentPane()
+             .setLayout(new FlowLayout());
+        frame.getContentPane()
+             .add(new JLabel(new ImageIcon(image)));
+        frame.pack();
+        frame.setVisible(true);**/
+        
+        
         final Hashtable<DecodeHintType, Object> decodeHints = new Hashtable<>();
-        decodeHints.put(DecodeHintType.TRY_HARDER, BarcodeFormat.DATA_MATRIX);
+        decodeHints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
+        decodeHints.put(DecodeHintType.POSSIBLE_FORMATS, BarcodeFormat.DATA_MATRIX);
         decodeHints.put(DecodeHintType.CHARACTER_SET, CharacterSetECI.ISO8859_1);
-
+        decodeHints.put(DecodeHintType.PURE_BARCODE, Boolean.FALSE);
         try {
-            result = reader.decode(bitmap, decodeHints);
+        	result = reader.decode(bitmap);
             text = result.getText();
         } catch (final Exception e) {
-            // System.out.println("Page: " + (i + 1));
-
-            // final JFrame frame = new JFrame();
-            // frame.getContentPane()
-            // .setLayout(new FlowLayout());
-            // frame.getContentPane()
-            // .add(new JLabel(new ImageIcon(image)));
-            // frame.pack();
-            // frame.setVisible(true);
         }
         return text;
     }
 
+    private enum Vertices{
+    	TOPLEFT, BOTTOMLEFT, TOPRIGHT, BOTTOMRIGHT
+    }
+    
+    private static ResultPoint correctPoints(ResultPoint point, Vertices vertice, int correction){
+    	
+    	if(vertice.equals(Vertices.TOPLEFT))
+    	      return new ResultPoint(point.getX() - correction, point.getY() +correction);
+    	  else if(vertice.equals(Vertices.BOTTOMLEFT)){
+    	      return new ResultPoint(point.getX() - correction, point.getY() -correction);
+    	  }else if(vertice.equals(Vertices.TOPRIGHT)){
+    	      return new ResultPoint(point.getX() +correction, point.getY() +correction);
+    	  }else{
+    	      return new ResultPoint(point.getX() +correction, point.getY() -correction);
+    	  }
+
+    	}
+    
     public static List<String> readQRCode(final File file, final boolean printQR) {
         final List<String> codes = new ArrayList<>();
 
