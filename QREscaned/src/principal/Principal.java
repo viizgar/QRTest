@@ -24,16 +24,16 @@ public class Principal {
         //writeCodes(Scanner.readQRCode(
         //        "C:/Users/Vicente Izquierdo/Desktop/tests_pdf_qrcode_import/C_test_scanned_mediplan/01_jürgen_wernersen_200dpi.pdf",
         //        true));
-        //writeCodes(Scanner.readQRCode(
-        //        "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/GetMPBinary.pdf",
-        //        true));
+        writeCodes(Scanner.readQRCode(
+                "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/test5g.pdf",
+                true));
         
-        // writeCodes(Scanner.readQRCode("C:/Users/Vicente Izquierdo/Desktop/C_test_scanned_mediplan/rudolf.pdf", true));
+         //writeCodes(Scanner.readQRCode("C:/Users/Vicente Izquierdo/Desktop/C_test_scanned_mediplan/rudolf.pdf", true));
         //writeCodes(Scanner.readQRCode("C:/Users/Vicente Izquierdo/Desktop/Mediplan mit QR-Code.pdf", true));
          //writeCodes(Scanner.readQRCode(
          //"C:/Users/Vicente Izquierdo/Desktop/tests_pdf_qrcode_import/A_test_real_pdf/Team_Organisation.pdf", true));
-         writeCodes(Scanner.readQRCode(
-                 "C:/Users/Vicente Izquierdo/Desktop/tests_pdf_qrcode_import/B_test_suite_one_image_pdf/Alles.pdf", true));
+         //writeCodes(Scanner.readQRCode(
+         //        "C:/Users/Vicente Izquierdo/Desktop/tests_pdf_qrcode_import/B_test_suite_one_image_pdf/Alles.pdf", true));
         // writeCodes(Scanner.readQRCode("C:/Users/Martinez/Desktop/QRScanner/CCF31012018.pdf", true));
         // writeCodes(Scanner.readQRCode("C:/Users/Martinez/Desktop/QRScanner/Testfaelle_ukf201.pdf"));
         // writeCodes(Scanner.readQRCode("C:/Users/Martinez/Desktop/weirdImages/dataMatrixImage1.jpg"));

@@ -30,8 +30,11 @@ import org.apache.pdfbox.rendering.PDFRenderer;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
+import com.google.zxing.ChecksumException;
 import com.google.zxing.DecodeHintType;
+import com.google.zxing.FormatException;
 import com.google.zxing.LuminanceSource;
+import com.google.zxing.NotFoundException;
 import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
@@ -148,84 +151,10 @@ public class Scanner {
     // return convert2DtoImage(matrix);
     // }
 
-    private static BufferedImage filterDataMatrix(final BufferedImage image) {
-        final boolean[][] matrix = convertImageTo2D(image);
-        final int columns = matrix[0].length;
-        final int rows = matrix.length;
-        int x = 0;
-
-        int changes = 0;
-        while (x < columns) {
-            int lenght = 1;
-            while (x + lenght < columns && matrix[0][x] == matrix[0][x + lenght]) {
-                lenght++;
-            }
-            changes++;
-            x = x + lenght;
-        }
-
-        final int mediumLenght = columns / changes;
-        // System.out.println("Medium quantity of pixels per square side: " + mediumLenght);
-
-        x = 0;
-        while (x < columns) {
-            int lenghtx = 1;
-            while (x + lenghtx < columns && matrix[0][x] == matrix[0][x + lenghtx]) {
-                lenghtx++;
-            }
-
-            lenghtx = lenghtx - 1;
-            if (x + mediumLenght - 1 < columns && lenghtx < mediumLenght - 1) {
-                lenghtx = mediumLenght - 1;
-            }
-            else if (lenghtx > mediumLenght + 1) {
-                lenghtx = mediumLenght + 1;
-            }
-
-            int y = rows - 1;
-            while (y >= 0) {
-                int lenghty = 1;
-                while (y - lenghty >= 0 && matrix[y][rows - 1] == matrix[y - lenghty][rows - 1]) {
-                    lenghty++;
-                }
-
-                lenghty = lenghty - 1;
-                if (y - mediumLenght - 1 >= 0 && lenghty < mediumLenght - 1) {
-                    lenghty = mediumLenght - 1;
-                }
-                else if (lenghtx > mediumLenght + 1) {
-                    lenghty = mediumLenght + 1;
-                }
-
-                int blackCount = 0;
-                int whiteCount = 0;
-                for (int p = 0; p <= lenghtx; p++) {
-                    for (int i = 0; i <= lenghty; i++) {
-                        if (matrix[y - i][x + p]) {
-                            whiteCount++;
-                        }
-                        else {
-                            blackCount++;
-                        }
-                    }
-                }
-
-                for (int p = 0; p <= lenghtx; p++) {
-                    for (int i = 0; i <= lenghty; i++) {
-                        if (whiteCount > blackCount) {
-                            matrix[y - i][x + p] = true;
-                        }
-                        else {
-                            matrix[y - i][x + p] = false;
-                        }
-                    }
-                }
-                y = y - (lenghty + 1);
-            }
-            x = x + lenghtx + 1;
-        }
-
-        return convert2DtoImage(matrix);
+    private static BufferedImage filterDataMatrix(final BufferedImage image) throws Exception {
+        
+    	
+        return image;
     }
 
     private static Rectangle getDataMatrixPosition(final BufferedImage image, int c) {
@@ -284,7 +213,7 @@ public class Scanner {
             frame.pack();
             frame.setVisible(true);**/
 
-            for(int c = 0; c < 10; c ++) {
+            for(int c = -5; c < 5; c ++) {
             
             rec = getDataMatrixPosition(transformedImage, c);
             
@@ -293,7 +222,7 @@ public class Scanner {
                         (int) rec.getHeight());
 
            
-                for(int rot = -10; rot < 10; rot ++) {
+                for(int rot = -5; rot < 5; rot ++) {
                 	text = imageReader(dataMatrix, rot);
                     if(text != null) {
                         System.out.println(text);
@@ -338,14 +267,31 @@ public class Scanner {
         }
         return text;
     }
-
+    
     public static String imageReader(BufferedImage image, final int i) {
+    	String text = imageReader(image, i, false);
+    	if(text == null) {
+    		text = imageReader(image, i, true);
+    	}
+    	
+    	return text;
+    }
+
+    public static String imageReader(BufferedImage image, final int i, boolean filter) {
 
     	String text = null;
         BinaryBitmap bitmap = null;
         Result result = null;
 
         image = rotateImageByDegrees(image, i);
+        
+        if(filter)
+			try {
+				image = filterDataMatrix(image);
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
         
         LuminanceSource tmpSource = new BufferedImageLuminanceSource(image);
         bitmap = new BinaryBitmap(new HybridBinarizer(tmpSource));
@@ -364,12 +310,16 @@ public class Scanner {
         decodeHints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
         decodeHints.put(DecodeHintType.POSSIBLE_FORMATS, BarcodeFormat.DATA_MATRIX);
         decodeHints.put(DecodeHintType.CHARACTER_SET, CharacterSetECI.ISO8859_1);
-        decodeHints.put(DecodeHintType.PURE_BARCODE, Boolean.FALSE);
+        //decodeHints.put(DecodeHintType.PURE_BARCODE, Boolean.FALSE);
         try {
-        	result = reader.decode(bitmap);
+        	result = reader.decode(bitmap, decodeHints);
             text = result.getText();
+          
         } catch (final Exception e) {
+        	
         }
+        
+        
         return text;
     }
 
@@ -417,7 +367,7 @@ public class Scanner {
                     }
 
                     if (image == null) {
-                        int resolution = 200;
+                        int resolution = 400;
                         // while (text == null && resolution < 1000) {
                         image = pdfRenderer.renderImageWithDPI(i, resolution, ImageType.RGB);
                         text = getTextByImage(image, i);
