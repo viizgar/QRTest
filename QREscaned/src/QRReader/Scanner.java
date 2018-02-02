@@ -36,6 +36,7 @@ import com.google.zxing.FormatException;
 import com.google.zxing.LuminanceSource;
 import com.google.zxing.NotFoundException;
 import com.google.zxing.RGBLuminanceSource;
+import com.google.zxing.Reader;
 import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
@@ -44,9 +45,19 @@ import com.google.zxing.common.CharacterSetECI;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.common.detector.WhiteRectangleDetector;
 import com.google.zxing.datamatrix.DataMatrixReader;
+import com.google.zxing.multi.GenericMultipleBarcodeReader;
+import com.google.zxing.multi.qrcode.QRCodeMultiReader;
+
+
+
 
 public class Scanner {
 
+	static int MAX_ROTATION = 2;
+	static int MAX_MARGIN = 15;
+
+	static boolean showFrame = true;
+	
     private static BufferedImage convert2DtoImage(final boolean[][] matrix) {
         final BufferedImage image2 = new BufferedImage(matrix[0].length, matrix.length, BufferedImage.TYPE_BYTE_GRAY);
         final WritableRaster raster = image2.getRaster();
@@ -153,8 +164,14 @@ public class Scanner {
 
     private static BufferedImage filterDataMatrix(final BufferedImage image) throws Exception {
         
+    	BufferedImage b_w = new BufferedImage(image.getWidth(), image.getHeight(),
+                BufferedImage.TYPE_BYTE_GRAY);
     	
-        return image;
+    	Graphics2D graphic = b_w.createGraphics();
+        graphic.drawImage(image, 0, 0, Color.WHITE, null);
+        graphic.dispose();
+    	
+        return b_w;
     }
 
     private static Rectangle getDataMatrixPosition(final BufferedImage image, int c) {
@@ -171,17 +188,53 @@ public class Scanner {
 
             final ResultPoint[] rp = wrd.detect();
 
-            ResultPoint pointA = correctPoints(rp[1], Vertices.TOPLEFT, c);
-            ResultPoint pointB = correctPoints(rp[0], Vertices.BOTTOMLEFT, c);
-            ResultPoint pointC = correctPoints(rp[3], Vertices.TOPRIGHT, c);
-            ResultPoint pointD = correctPoints(rp[2], Vertices.BOTTOMRIGHT, c);
+            ResultPoint topLeft = correctPoints(rp[1], Vertices.TOPLEFT, c);
+            ResultPoint bottomLeft = correctPoints(rp[0], Vertices.BOTTOMLEFT, c);
+            ResultPoint topRight = correctPoints(rp[3], Vertices.TOPRIGHT, c);
+            ResultPoint bottomRight = correctPoints(rp[2], Vertices.BOTTOMRIGHT, c);
             
+            int tx = 0;
+            int ty = 0;
             
-            final int x = (int) pointB.getX();
-            final int y = (int) pointB.getY();
+            int x = 0;
+            int y = 0;
+            
+            int w = 0;
+            int h = 0;
+            
+            //Girado a la izquierda
+            if(topLeft.getY() < topRight.getY()) {
+            	tx = (int) rp[1].getX();
+            	ty = (int) rp[0].getY();
+            	
+            	x = (int) topLeft.getX();
+            	y = (int) bottomLeft.getY();
+            	
+            	w = (int) (bottomRight.getX() -x);
+            	h = (int) topRight.getY() -y;
+            }else {
+            	// Girado a derecha
+            	tx = (int) rp[0].getX();
+            	ty = (int) rp[2].getY();
+            	
+            	x = (int) bottomLeft.getX();
+            	y = (int) bottomRight.getY();
+            	
+            	w = (int) (topRight.getX() -x);
+            	h = (int) topLeft.getY() -y;
+            }
+            
+            if(w > h) {
+            	h = w;
+            }else {
+            	w = h;
+            }
+            
+            //final int x = (int) pointB.getX();
+            //final int y = (int) pointB.getY();
 
-            final int w = (int) (pointD.getX() - pointB.getX()) ;
-            final int h = (int) (pointA.getY() - pointB.getY()) ;
+            //final int w = (int) (pointD.getX() - pointB.getX()) ;
+            //final int h = (int) (pointA.getY() - pointB.getY()) ;
 
             return new Rectangle(x, y, w, h);
 
@@ -213,13 +266,15 @@ public class Scanner {
             frame.pack();
             frame.setVisible(true);**/
 
-            for(int c = 0; c < 10; c ++) {
+           
+            // MARGENES
+            for(int c = - 2; c <= MAX_MARGIN; c ++) {
             
             	text = readDataMatrixBundle(transformedImage, c);
-            
+            	if(text != null) return text;
             
             }
-            image = rotateImageByDegrees(image, 90);
+            image = rotateImageByDegrees(image, angle);
 
             angle += 90;
             }
@@ -228,24 +283,9 @@ public class Scanner {
 
         }
                 
-                /**if (text == null) {
-                    dataMatrix = filterDataMatrix(resizeImage(dataMatrix, dataMatrix.getWidth() * 2, dataMatrix.getHeight() * 2));
-                    text = imageReader(dataMatrix, 0);
-
-                }**/
-
                 if (text == null) {
                     System.out.println("Page fail: " + (i + 1));
 
-                    //System.err.println("Unreadable image");
-
-                    // final JFrame frame = new JFrame();
-                    // frame.getContentPane()
-                    // .setLayout(new FlowLayout());
-                    // frame.getContentPane()
-                    // .add(new JLabel(new ImageIcon(dataMatrix)));
-                    // frame.pack();
-                    // frame.setVisible(true);
                 }
 
             
@@ -264,18 +304,16 @@ public class Scanner {
             BufferedImage dataMatrix = transformedImage.getSubimage((int) rec.getX() , (int) rec.getY() , (int) rec.getWidth(),
                     (int) rec.getHeight());
 
-            for(int rot = 0; rot < 5; rot ++) {
+            for(double rot = 0.0; rot <= MAX_ROTATION; rot += 0.5) {
             	//pos
             	text = imageReader(dataMatrix, rot);
                 if(text != null) {
-                    System.out.println(text);
                 	return text;
                 }
                 
                 //neg
                 text = imageReader(dataMatrix, -rot);
                 if(text != null) {
-                    System.out.println(text);
                 	return text;
                 }
             }
@@ -287,7 +325,7 @@ public class Scanner {
     }
     
 
-    public static String imageReader(BufferedImage image, final int i) {
+    public static String imageReader(BufferedImage image, final double i) {
 
     	String text = null;
         BinaryBitmap bitmap = null;
@@ -304,29 +342,47 @@ public class Scanner {
         
         LuminanceSource tmpSource = new BufferedImageLuminanceSource(image);
         bitmap = new BinaryBitmap(new HybridBinarizer(tmpSource));
-        DataMatrixReader reader = new DataMatrixReader();
+        DataMatrixReader  reader = new DataMatrixReader();
         
-        JFrame frame = new JFrame();
-        frame.getContentPane()
-             .setLayout(new FlowLayout());
-        frame.getContentPane()
-             .add(new JLabel(new ImageIcon(image)));
-        frame.pack();
-        frame.setVisible(true);
+        if(showFrame) {
+        	JFrame frame = null;
+            if(frame == null)frame = new JFrame();
+            frame.getContentPane()
+                 .setLayout(new FlowLayout());
+            frame.getContentPane()
+                 .add(new JLabel(new ImageIcon(image)));
+            frame.pack();
+            frame.setVisible(true);	
+        }
+        
         
         
         final Hashtable<DecodeHintType, Object> decodeHints = new Hashtable<>();
-        decodeHints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
-        decodeHints.put(DecodeHintType.POSSIBLE_FORMATS, BarcodeFormat.DATA_MATRIX);
-        decodeHints.put(DecodeHintType.CHARACTER_SET, CharacterSetECI.ISO8859_1);
-        decodeHints.put(DecodeHintType.PURE_BARCODE, Boolean.FALSE);
+        decodeHints.put(DecodeHintType.TRY_HARDER, BarcodeFormat.DATA_MATRIX);
+        //decodeHints.put(DecodeHintType.POSSIBLE_FORMATS, BarcodeFormat.DATA_MATRIX);
+        //decodeHints.put(DecodeHintType.CHARACTER_SET, CharacterSetECI.Big5);
+        //decodeHints.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
+        
+        
+        GenericMultipleBarcodeReader readerq = new GenericMultipleBarcodeReader(
+        		reader);
         try {
-        	result = reader.decode(bitmap, decodeHints);
+            Result[] results = readerq.decodeMultiple(bitmap, decodeHints);
+            for (Result r : results) {
+                System.out.println(r.toString());
+            }
+        } catch (Exception e) {
+            System.out.println("failed: " + e.getMessage());
+        }
+        
+        /**
+        try {
+        	result = reader.decode(bitmap);
             text = result.getText();
           
         } catch (final Exception e) {
-        	
-        }
+        	System.out.println("Error decoding: " + e);
+        }**/
         
         
         return text;
@@ -339,12 +395,12 @@ public class Scanner {
     private static ResultPoint correctPoints(ResultPoint point, Vertices vertice, int correction){
     	
         if(vertice.equals(Vertices.TOPLEFT))
-            return new ResultPoint(point.getX() - correction, point.getY() +correction);
+            return new ResultPoint(point.getX() - correction, point.getY() +correction );
         else if(vertice.equals(Vertices.BOTTOMLEFT)){
-            return new ResultPoint(point.getX() - correction, point.getY() -correction);
+            return new ResultPoint(point.getX() - correction, point.getY() -correction );
         }else if(vertice.equals(Vertices.TOPRIGHT)){
             return new ResultPoint(point.getX() +correction, point.getY() +correction);
-        }else{
+        }else{ //BOTTOMRIGHT
             return new ResultPoint(point.getX() +correction, point.getY() -correction);
         }
 
@@ -378,12 +434,12 @@ public class Scanner {
                     }
 
                     if (image == null) {
-                        int resolution = 200;
-                        // while (text == null && resolution < 1000) {
+                        int resolution = 400;
+                        while (text == null && resolution <= 400) {
                         image = pdfRenderer.renderImageWithDPI(i, resolution, ImageType.RGB);
                         text = getTextByImage(image, i);
                         resolution = resolution + 100;
-                        // }
+                        }
                     }
 
                     if (text == null) {
