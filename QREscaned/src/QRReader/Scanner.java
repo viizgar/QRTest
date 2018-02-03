@@ -301,9 +301,10 @@ public class Scanner {
     	Rectangle rec = getDataMatrixPosition(transformedImage, c);
         
         if (rec != null) {
-            BufferedImage dataMatrix = transformedImage.getSubimage((int) rec.getX() , (int) rec.getY() , (int) rec.getWidth(),
-                    (int) rec.getHeight());
-
+            //BufferedImage dataMatrix = transformedImage.getSubimage((int) rec.getX() , (int) rec.getY() , (int) rec.getWidth(),
+            //        (int) rec.getHeight());
+        	BufferedImage dataMatrix = transformedImage;
+        	
             for(double rot = 0.0; rot <= MAX_ROTATION; rot += 0.5) {
             	//pos
             	text = imageReader(dataMatrix, rot);

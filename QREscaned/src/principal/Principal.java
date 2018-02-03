@@ -22,11 +22,14 @@ public class Principal {
     private static void escanear() {
         // writeCodes(Scanner.readQRCode("C:/Users/Martinez/Desktop/QRScanner/NuevoDocumento 2018-01-31.pdf", true));
         //writeCodes(Scanner.readQRCode(
-        //        "C:/Users/Vicente Izquierdo/Desktop/tests_pdf_qrcode_import/C_test_scanned_mediplan/01_jürgen_wernersen_200dpi.pdf",
-        //        true));
+        //        "C:/Users/Vicente/Desktop/tests_pdf_qrcode_import/C_test_scanned_mediplan/01_jürgen_wernersen_200dpi.pdf",
+        //       true));
         writeCodes(Scanner.readQRCode(
-                "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/test2.pdf",
-                true));
+                "F:/Dropbox/test7.pdf",
+               true));
+        //writeCodes(Scanner.readQRCode(
+        //        "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/test2.pdf",
+        //        true));
         //writeCodes(Scanner.readQRCode(
        //         "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/test12.pdf",
        //         true));
