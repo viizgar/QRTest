@@ -53,12 +53,21 @@ import com.google.zxing.multi.qrcode.QRCodeMultiReader;
 
 public class Scanner {
 
-	static int MAX_ROTATION = 2;
-	static int MAX_MARGIN = 15;
-
-	static boolean showFrame = true;
+	BufferedImage qr;
+	BufferedImage temp_qr;
 	
-    private static BufferedImage convert2DtoImage(final boolean[][] matrix) {
+	public Scanner() {
+		this.temp_qr = null;
+		this.qr = null;
+	}
+	
+	 int MAX_ROTATION = 0;
+	 int MAX_MARGIN = -1;
+	 int RESOLUTION = 400;
+
+	 boolean showFrame = true;
+	
+    private  BufferedImage convert2DtoImage(final boolean[][] matrix) {
         final BufferedImage image2 = new BufferedImage(matrix[0].length, matrix.length, BufferedImage.TYPE_BYTE_GRAY);
         final WritableRaster raster = image2.getRaster();
         for (int y = 0; y < matrix.length; y++) {
@@ -77,7 +86,7 @@ public class Scanner {
         return image2;
     }
 
-    private static boolean[][] convertImageTo2D(final BufferedImage image) {
+    private  boolean[][] convertImageTo2D(final BufferedImage image) {
         final BufferedImage image2 = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
         image2.getGraphics()
               .drawImage(image, 0, 0, null);
@@ -98,7 +107,7 @@ public class Scanner {
         return result;
     }
 
-    // private static BufferedImage definitiveFilterDataMatrix(final BufferedImage image) {
+    // private  BufferedImage definitiveFilterDataMatrix(final BufferedImage image) {
     // final boolean[][] matrix = convertImageTo2D(image);
     // final int columns = matrix[0].length;
     // final int rows = matrix.length;
@@ -162,7 +171,7 @@ public class Scanner {
     // return convert2DtoImage(matrix);
     // }
 
-    private static BufferedImage filterDataMatrix(final BufferedImage image) throws Exception {
+    private  BufferedImage filterDataMatrix(final BufferedImage image) throws Exception {
         
     	BufferedImage b_w = new BufferedImage(image.getWidth(), image.getHeight(),
                 BufferedImage.TYPE_BYTE_GRAY);
@@ -171,10 +180,10 @@ public class Scanner {
         graphic.drawImage(image, 0, 0, Color.WHITE, null);
         graphic.dispose();
     	
-        return b_w;
+        return image;
     }
 
-    private static Rectangle getDataMatrixPosition(final BufferedImage image, int c) {
+    private  Rectangle getDataMatrixPosition(final BufferedImage image, int c) {
 
         try {
 
@@ -230,6 +239,8 @@ public class Scanner {
             	w = h;
             }
             
+           
+            
             //final int x = (int) pointB.getX();
             //final int y = (int) pointB.getY();
 
@@ -245,36 +256,27 @@ public class Scanner {
 
     }
 
-    private static String getTextByImage(BufferedImage image, int i ) {
+    private String getTextByImage(BufferedImage image, int i ) {
         String text = null;
         if (image != null) {
-            int angle = 90;
+            int angle = 0;
             
-            
+            this.qr = image;
 
-             while (angle < 360) {
+            while (angle < 360) {
 
-            	 final BufferedImage transformedImage = image.getSubimage(image.getWidth() * 8 / 11, 0, image.getWidth() * 3 / 11,
-                         image.getHeight() / 4);
+            	 final BufferedImage transformedImage = this.qr.getSubimage(this.qr.getWidth() * 8 / 11, 0, this.qr.getWidth() * 3 / 11,
+            			 this.qr.getHeight() / 4);
             	 
-            /**JFrame frame;
-            frame = new JFrame();
-            frame.getContentPane()
-                 .setLayout(new FlowLayout());
-            frame.getContentPane()
-                 .add(new JLabel(new ImageIcon(transformedImage)));
-            frame.pack();
-            frame.setVisible(true);**/
-
-           
+            
             // MARGENES
-            for(int c = - 2; c <= MAX_MARGIN; c ++) {
+            for(int c = - 1; c <= MAX_MARGIN; c ++) {
             
             	text = readDataMatrixBundle(transformedImage, c);
             	if(text != null) return text;
             
             }
-            image = rotateImageByDegrees(image, angle);
+            rotateImageByDegrees(image, angle);
 
             angle += 90;
             }
@@ -296,15 +298,19 @@ public class Scanner {
     }
     
     
-    private static String readDataMatrixBundle(BufferedImage transformedImage, int c) {
+    private String readDataMatrixBundle(BufferedImage transformedImage, int c) {
     	String text = null;
     	Rectangle rec = getDataMatrixPosition(transformedImage, c);
         
+    	
+    	
         if (rec != null) {
-            BufferedImage dataMatrix = transformedImage.getSubimage((int) rec.getX() , (int) rec.getY() , (int) rec.getWidth(),
-                    (int) rec.getHeight());
-
-            for(double rot = 0.0; rot <= MAX_ROTATION; rot += 0.5) {
+        	//BufferedImage dataMatrix = transformedImage;
+        	BufferedImage dataMatrix = transformedImage.getSubimage((int) rec.getX() , (int) rec.getY() , (int) rec.getWidth(),
+                   (int) rec.getHeight());
+            
+        	
+        	for(double rot = 0.0; rot <= MAX_ROTATION; rot += 0.5) {
             	//pos
             	text = imageReader(dataMatrix, rot);
                 if(text != null) {
@@ -325,22 +331,24 @@ public class Scanner {
     }
     
 
-    public static String imageReader(BufferedImage image, final double i) {
+    public  String imageReader(BufferedImage image, final double i) {
 
     	String text = null;
         BinaryBitmap bitmap = null;
         Result result = null;
 
-        image = rotateImageByDegrees(image, i);
+        BufferedImage rot = null;
+        BufferedImage imag = null;
         try {
-			image = filterDataMatrix(image);
+        	rotateImageByDegrees(image, i);
+        	this.qr = filterDataMatrix(rot);
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			System.out.println("Error filtering");
 		}
        
         
-        LuminanceSource tmpSource = new BufferedImageLuminanceSource(image);
+        LuminanceSource tmpSource = new BufferedImageLuminanceSource(this.qr);
         bitmap = new BinaryBitmap(new HybridBinarizer(tmpSource));
         DataMatrixReader  reader = new DataMatrixReader();
         
@@ -350,7 +358,7 @@ public class Scanner {
             frame.getContentPane()
                  .setLayout(new FlowLayout());
             frame.getContentPane()
-                 .add(new JLabel(new ImageIcon(image)));
+                 .add(new JLabel(new ImageIcon(this.qr)));
             frame.pack();
             frame.setVisible(true);	
         }
@@ -360,29 +368,19 @@ public class Scanner {
         final Hashtable<DecodeHintType, Object> decodeHints = new Hashtable<>();
         decodeHints.put(DecodeHintType.TRY_HARDER, BarcodeFormat.DATA_MATRIX);
         //decodeHints.put(DecodeHintType.POSSIBLE_FORMATS, BarcodeFormat.DATA_MATRIX);
-        //decodeHints.put(DecodeHintType.CHARACTER_SET, CharacterSetECI.Big5);
+        decodeHints.put(DecodeHintType.CHARACTER_SET, CharacterSetECI.ISO8859_1);
         //decodeHints.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
         
+       
         
-        GenericMultipleBarcodeReader readerq = new GenericMultipleBarcodeReader(
-        		reader);
-        try {
-            Result[] results = readerq.decodeMultiple(bitmap, decodeHints);
-            for (Result r : results) {
-                System.out.println(r.toString());
-            }
-        } catch (Exception e) {
-            System.out.println("failed: " + e.getMessage());
-        }
         
-        /**
         try {
-        	result = reader.decode(bitmap);
+        	result = reader.decode(bitmap, decodeHints);
             text = result.getText();
           
         } catch (final Exception e) {
-        	System.out.println("Error decoding: " + e);
-        }**/
+        	//System.out.println("Error decoding: " + e);
+        }
         
         
         return text;
@@ -392,7 +390,7 @@ public class Scanner {
     	TOPLEFT, BOTTOMLEFT, TOPRIGHT, BOTTOMRIGHT
     }
     
-    private static ResultPoint correctPoints(ResultPoint point, Vertices vertice, int correction){
+    private  ResultPoint correctPoints(ResultPoint point, Vertices vertice, int correction){
     	
         if(vertice.equals(Vertices.TOPLEFT))
             return new ResultPoint(point.getX() - correction, point.getY() +correction );
@@ -408,7 +406,7 @@ public class Scanner {
 
     	}
     
-    public static List<String> readQRCode(final File file, final boolean printQR) {
+    public List<String> readQRCode(final File file, final boolean printQR) {
         final List<String> codes = new ArrayList<>();
 
         if (FilenameUtils.getExtension(file.getName())
@@ -434,12 +432,12 @@ public class Scanner {
                     }
 
                     if (image == null) {
-                        int resolution = 400;
-                        while (text == null && resolution <= 400) {
+                        int resolution = RESOLUTION;
+                        //while (text == null && resolution <= 400) {
                         image = pdfRenderer.renderImageWithDPI(i, resolution, ImageType.RGB);
                         text = getTextByImage(image, i);
                         resolution = resolution + 100;
-                        }
+                        //}
                     }
 
                     if (text == null) {
@@ -513,13 +511,13 @@ public class Scanner {
         return codes;
     }
 
-    public static List<String> readQRCode(final String fileName, final boolean printQR) {
+    public List<String> readQRCode(final String fileName, final boolean printQR) {
 
         final File file = new File(fileName);
         return readQRCode(file, printQR);
     }
 
-    private static BufferedImage resizeImage(final BufferedImage img, final int newWidth, final int newHeight) {
+    private  BufferedImage resizeImage(final BufferedImage img, final int newWidth, final int newHeight) {
         final Image tmp = img.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
         final BufferedImage dimg = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
 
@@ -530,7 +528,7 @@ public class Scanner {
         return dimg;
     }
 
-    private static BufferedImage rotateImageByDegrees(final BufferedImage img, final double angle) {
+    private  void rotateImageByDegrees(final BufferedImage img, final double angle) {
         final double rads = Math.toRadians(angle);
         final double sin = Math.abs(Math.sin(rads)), cos = Math.abs(Math.cos(rads));
         final int w = img.getWidth();
@@ -538,8 +536,8 @@ public class Scanner {
         final int newWidth = (int) Math.floor(w * cos + h * sin);
         final int newHeight = (int) Math.floor(h * cos + w * sin);
 
-        final BufferedImage rotated = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
-        final Graphics2D g2d = rotated.createGraphics();
+        
+        final Graphics2D g2d = this.qr.createGraphics();
         final AffineTransform at = new AffineTransform();
         at.translate((newWidth - w) / 2, (newHeight - h) / 2);
 
@@ -551,10 +549,9 @@ public class Scanner {
         g2d.drawImage(img, 0, 0, null);
         g2d.dispose();
 
-        return rotated;
     }
 
-    private static BufferedImage thresholdImage(final BufferedImage image, final int threshold) {
+    private  BufferedImage thresholdImage(final BufferedImage image, final int threshold) {
         final BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
         result.getGraphics()
               .drawImage(image, 0, 0, null);
