@@ -19,67 +19,108 @@ public class Principal {
 
     private static File dataMatrixImage;
 
-    private static void escanear() {
-        // writeCodes(Scanner.readQRCode("C:/Users/Martinez/Desktop/QRScanner/NuevoDocumento 2018-01-31.pdf", true));
-        //writeCodes(Scanner.readQRCode(
-        //        "C:/Users/Vicente Izquierdo/Desktop/tests_pdf_qrcode_import/C_test_scanned_mediplan/01_jürgen_wernersen_200dpi.pdf",
-        //        true));
-        writeCodes(Scanner.readQRCode(
-                "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/test5g.pdf",
-                true));
-        
-         //writeCodes(Scanner.readQRCode("C:/Users/Vicente Izquierdo/Desktop/C_test_scanned_mediplan/rudolf.pdf", true));
-        //writeCodes(Scanner.readQRCode("C:/Users/Vicente Izquierdo/Desktop/Mediplan mit QR-Code.pdf", true));
-         //writeCodes(Scanner.readQRCode(
-         //"C:/Users/Vicente Izquierdo/Desktop/tests_pdf_qrcode_import/A_test_real_pdf/Team_Organisation.pdf", true));
-         //writeCodes(Scanner.readQRCode(
-         //        "C:/Users/Vicente Izquierdo/Desktop/tests_pdf_qrcode_import/B_test_suite_one_image_pdf/Alles.pdf", true));
-        // writeCodes(Scanner.readQRCode("C:/Users/Martinez/Desktop/QRScanner/CCF31012018.pdf", true));
-        // writeCodes(Scanner.readQRCode("C:/Users/Martinez/Desktop/QRScanner/Testfaelle_ukf201.pdf"));
-        // writeCodes(Scanner.readQRCode("C:/Users/Martinez/Desktop/weirdImages/dataMatrixImage1.jpg"));
-        // writeCodes(Scanner.readQRCode("C:/Users/Martinez/Desktop/image3.png"));
-        // Scanner.readQRCode("C:/Users/Martinez/Desktop/QRScanner/images/Page_00001.jpg"); // 600 dpi -> works! (7016 x 4961)
-        // Scanner.readQRCode("C:/Users/Martinez/Desktop/QRScanner/Page_00001_300.jpg"); // 300 dpi -> works! (7016 x 4961)
-        // writeCodes(Scanner.readQRCode("C:/Users/Martinez/Desktop/QRScanner/Page_00001_96.jpg")); // 96 dpi -> works! (7016 x
-        // 4961)
-        // writeCodes(Scanner.readQRCode("C:/Users/Martinez/Desktop/QRScanner/test.jpeg"));
-        // writeCodes(Scanner.readQRCode("C:/Users/Martinez/Desktop/QRScanner/Page_00001_72.jpg")); // 72 dpi -> works! (7016 x
-        // 4961)
-        // writeCodes(Scanner.readQRCode("C:/Users/Martinez/Desktop/QRScanner/Page_00001_200_2.jpg")); // 200 dpi -> NO! (2238 x
-        // 1653)
-        // writeCodes(Scanner.readQRCode("C:/Users/Martinez/Desktop/QRScanner/Testfaelle_ukf201-001.jpg")); // 96 dpi -> NO (2339
-        // x
-        // 1654)
-        // System.out.println(Scanner.readQRCode(System.getProperty("user.home") + "/barcode2.png"));
-        // System.out.println(Scanner.readQRCode(System.getProperty("user.home") + "/medikationplanExample2.png"));
-        // writeCodes(Scanner.readQRCode("C:/Users/Martinez/Desktop/QRScanner/Testfaelle_ukf201.pdf"));
-        // writeCodes(Scanner.readQRCode("C:/Users/Martinez/Desktop/QRScanner/EXT_ITA_VGEX_BMP_Anlage3_Spezifikation.pdf"));
-        // final List<String> texts = new ArrayList<>();
-        // int errors = 0;
-        // for (int i = 1; i < 250; i++) {
-        // String pagina = "";
-        // if (i < 10) {
-        // pagina = "0000" + i;
-        // }
-        // else if (i < 100) {
-        // pagina = "000" + i;
-        // }
-        // else {
-        // pagina = "00" + i;
-        // }
-        // System.out.println("Actual page: " + i);
-        // final String text = Scanner.readQRCode("C:/Users/Martinez/Desktop/QRScanner/images/Page_" + pagina + ".jpg")
-        // .get(0);
-        // if (text != null) {
-        // texts.add(text);
-        // }
-        // else {
-        // errors++;
-        // texts.add("The data matrix in the page " + i + " has not been able to interpret");
-        // }
-        // }
-        // System.out.println(errors + " images couldn´t be read of " + 249);
-        // writeCodes(texts);
+    private static void escanear(Scanner s) {
+    	
+    	ArrayList<String> qrCodes = new ArrayList();
+    	
+    	qrCodes.add(writeCodes(s.readQRCode(
+                "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/01.pdf",
+                true)));
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/02.pdf",
+               true)));
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/03.pdf",
+               true)));
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/04.pdf",
+               true)));
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/05-06.pdf",
+               true)));
+    	
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/07-08.pdf",
+               true)));
+    	
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/09.pdf",
+               true)));
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/10.pdf",
+               true)));
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/11.pdf",
+               true)));
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/12.pdf",
+               true)));
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/13.pdf",
+               true)));
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/14.pdf",
+               true)));
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/15.pdf",
+               true)));
+    	
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/16-17.pdf",
+               true)));
+    	
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/18.pdf",
+               true)));
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/19.pdf",
+               true)));
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/20-21.pdf",
+               true)));
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/22.pdf",
+               true)));
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/23.pdf",
+               true)));
+    	
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/24-25.pdf",
+               true)));
+    	
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/26.pdf",
+               true)));
+    	
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/27.pdf",
+               true)));
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/28.pdf",
+               true)));
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/29.pdf",
+               true)));
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/30.pdf",
+               true)));
+    	qrCodes.add(writeCodes(s.readQRCode(
+               "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/31.pdf",
+               true)));
+    	qrCodes.add(writeCodes(s.readQRCode(
+                "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/32.pdf",
+                true)));
+    	qrCodes.add(writeCodes(s.readQRCode(
+                "C:/Users/Vicente Izquierdo/Pictures/ControlCenter4/Scan/original/33.pdf",
+                true)));
+    	
+    	System.out.println("Size: " + qrCodes.size());
+    	System.out.println("Data: \n");
+    	for(String qrCode : qrCodes) {
+    		System.out.println(qrCode);
+    	};
+
     }
 
     private static void generar(final String resourceName) {
@@ -128,7 +169,9 @@ public class Principal {
 
     public static void main(final String[] args) {
 
-        escanear();
+    	Scanner s = new Scanner();
+    	
+        escanear(s);
 
         // scanAndReading();
 
@@ -196,19 +239,25 @@ public class Principal {
         writeCodes(Scanner.readQRCode("C:/Users/Martinez/Desktop/review/Page_00001.pdf", true));
     }
 
-    private static void writeCodes(final List<String> codes) {
+    private static String writeCodes(final List<String> codes) {
+    	ArrayList<String> pages = new ArrayList<>();
+    	
         if (codes.isEmpty()) {
-            System.out.println("Haven´t found any data matrix to decode");
+        	pages.add(null);
+        	System.out.println("Haven´t found any data matrix to decode");
         }
         else {
             for (final String code : codes) {
                 if (code != null) {
-                    System.out.println(code);
+                    pages.add(code);
                 }
                 else {
-                    System.err.println("The data matrix has not been able to interpret");
+                	pages.add(null);
+                	System.err.println("The data matrix has not been able to interpret");
                 }
             }
         }
+        
+        return pages.toString();
     }
 }
